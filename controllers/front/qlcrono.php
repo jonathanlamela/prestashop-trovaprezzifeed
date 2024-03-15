@@ -51,37 +51,6 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
 
         $db = Db::getInstance();
 
-        /*
-        Query con spese di spedizione dalla tabella webfeed
-        $str_query = "
-        select
-        `rc`.`ramo` AS `Categoria`,
-        `pm`.`name` AS `Marca`,
-        `p`.`reference` AS `Codice OEM`,
-        `p`.`id_product` AS `Codice commerciante`,
-        `pl`.`name` AS `Nome prodotto`,
-        ifnull(`pl`.`description`,`pl`.`description_short`) AS `Descrizione`,
-        concat('https://www.ldc.it/',`p`.`id_product`,'-',`pl`.`link_rewrite`,'.html?utm_source=trovaprezzi') AS `URL_Prodotto`,
-        concat('https://www.ldc.it/',`pi`.`id_image`,'-large_default/',`pl`.`link_rewrite`,'.jpg') AS `URL_Immagine`,
-        truncate(round((`p`.`price`)*1.22,2),2) AS `Prezzo Vendita`,
-        truncate(ROUND(ifnull(`wp`.`delivery`*1.22,0),2),2) AS `Spese di Spedizione`,
-        `p`.`ean13` as 'EAN',
-        'EUR' as `Valuta`,
-        '<endrecord>' as `Fine`
-from `" . _DB_PREFIX_ . "product` `p`
-left join `" . _DB_PREFIX_ . "product_lang` `pl` on `p`.`id_product` = `pl`.`id_product`
-left join `" . _DB_PREFIX_ . "webfeed_ramo_categoria` `rc` on `p`.`id_category_default` = `rc`.`id_ramo_categoria`
-left join `" . _DB_PREFIX_ . "image` `pi` on `pi`.`id_product` = `p`.`id_product`
-left join `" . _DB_PREFIX_ . "manufacturer` `pm` on `pm`.`id_manufacturer` = `p`.`id_manufacturer`
-left join `" . _DB_PREFIX_ . "stock_available` `st` on `st`.`id_product` = `p`.`id_product`
-left join `" . _DB_PREFIX_ . "webfeed_product` `wp` on `wp`.`prestashop_id`=`p`.`id_product`
-where `rc`.`ramo` is not null
-and `p`.`id_category_default` >= 2
-and `pi`.`id_image` is not null
-and `pi`.`cover` = 1
-and `pl`.`id_lang` = 1
-and `st`.`quantity` > 0
-        ";*/
 
         $str_query = "
         select
@@ -91,8 +60,8 @@ and `st`.`quantity` > 0
         `p`.`id_product` AS `Codice commerciante`,
         `pl`.`name` AS `Nome prodotto`,
         ifnull(`pl`.`description`,`pl`.`description_short`) AS `Descrizione`,
-        concat('https://www.ldc.it/',`p`.`id_product`,'-',`pl`.`link_rewrite`,'.html?utm_source=trovaprezzi') AS `URL_Prodotto`,
-        concat('https://www.ldc.it/',`pi`.`id_image`,'-large_default/',`pl`.`link_rewrite`,'.jpg') AS `URL_Immagine`,
+        concat('" . Tools::getHttpHost(true) . __PS_BASE_URI__  . "',`p`.`id_product`,'-',`pl`.`link_rewrite`,'.html?utm_source=trovaprezzi') AS `URL_Prodotto`,
+        concat('" . Tools::getHttpHost(true) . __PS_BASE_URI__  . "',`pi`.`id_image`,'-large_default/',`pl`.`link_rewrite`,'.jpg') AS `URL_Immagine`,
         truncate(round((`p`.`price`)*1.22,2),2) AS `Prezzo Vendita`,
         0 AS `Spese di Spedizione`,
         `p`.`ean13` as 'EAN',
@@ -109,20 +78,26 @@ left join `" . _DB_PREFIX_ . "webfeed_product` `wp` on `wp`.`prestashop_id`=`p`.
 where `rc`.`ramo` is not null
 and `p`.`id_category_default` >= 2
 and `pl`.`id_lang` = 1
+and `pi`.`id_image` is not null
 and `st`.`quantity` > 0
         ";
 
-        echo $str_query;
+
+        ini_set('memory_limit', '512M');
 
         $products = $db->executeS($str_query);
 
         fputcsv($file, array_keys($products[0]), "|");
+
 
         foreach ($products as $p) {
             fputcsv($file, $p, "|");
         }
 
         fclose($file);
+
+        ini_set('memory_limit', '256M');
+
 
 
         echo "<a href='/datafeed/trovaprezzi.txt' download>Scarica feed</a>";
