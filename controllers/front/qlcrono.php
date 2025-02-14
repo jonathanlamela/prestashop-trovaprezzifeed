@@ -47,58 +47,54 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
     public function writeFeed()
     {
 
-        $file = fopen(_PS_ROOT_DIR_ . "/datafeed/trovaprezzi.txt", "w");
+        $filePath = _PS_ROOT_DIR_ . "/datafeed/trovaprezzi.txt";
+        $file = fopen($filePath, "w");
 
         $db = Db::getInstance();
 
-
         $str_query = "
-        select
-        `rc`.`ramo` AS `Categoria`,
-        `pm`.`name` AS `Marca`,
-        `p`.`reference` AS `Codice OEM`,
-        `p`.`id_product` AS `Codice commerciante`,
-        `pl`.`name` AS `Nome prodotto`,
-        ifnull(`pl`.`description`,`pl`.`description_short`) AS `Descrizione`,
-        concat('" . Tools::getHttpHost(true) . __PS_BASE_URI__  . "',`p`.`id_product`,'-',`pl`.`link_rewrite`,'.html?utm_source=trovaprezzi') AS `URL_Prodotto`,
-        concat('" . Tools::getHttpHost(true) . __PS_BASE_URI__  . "',`pi`.`id_image`,'-large_default/',`pl`.`link_rewrite`,'.jpg') AS `URL_Immagine`,
-        truncate(round((`p`.`price`)*1.22,2),2) AS `Prezzo Vendita`,
-        0 AS `Spese di Spedizione`,
-        `p`.`ean13` as 'EAN',
-        'EUR' as `Valuta`,
-        `st`.`quantity` as `Stock`,
-        '<endrecord>' as `Fine`
-from `" . _DB_PREFIX_ . "product` `p`
-left join `" . _DB_PREFIX_ . "product_lang` `pl` on `p`.`id_product` = `pl`.`id_product`
-left join `" . _DB_PREFIX_ . "webfeed_ramo_categoria` `rc` on `p`.`id_category_default` = `rc`.`id_ramo_categoria`
-left join `" . _DB_PREFIX_ . "image` `pi` on `pi`.`id_product` = `p`.`id_product` AND `pi`.`cover` = 1
-left join `" . _DB_PREFIX_ . "manufacturer` `pm` on `pm`.`id_manufacturer` = `p`.`id_manufacturer`
-left join `" . _DB_PREFIX_ . "stock_available` `st` on `st`.`id_product` = `p`.`id_product`
-left join `" . _DB_PREFIX_ . "webfeed_product` `wp` on `wp`.`prestashop_id`=`p`.`id_product`
-where `rc`.`ramo` is not null
-and `p`.`id_category_default` >= 2
-and `pl`.`id_lang` = 1
-and `pi`.`id_image` is not null
-and `st`.`quantity` > 0
+            SELECT
+                rc.ramo AS Categoria,
+                pm.name AS Marca,
+                p.reference AS `Codice OEM`,
+                p.id_product AS `Codice commerciante`,
+                pl.name AS `Nome prodotto`,
+                COALESCE(pl.description, pl.description_short) AS `Descrizione`,
+                CONCAT('https://www.ldc.it/', p.id_product, '-', pl.link_rewrite, '.html?utm_source=trovaprezzi') AS `URL_Prodotto`,
+                wi.image_url AS `URL_Immagine`,
+                TRUNCATE(ROUND(p.price * 1.22, 2), 2) AS `Prezzo Vendita`,
+                0 AS `Spese di Spedizione`,
+                p.ean13 AS `EAN`,
+                'EUR' AS `Valuta`,
+                st.quantity AS `Stock`,
+                '<endrecord>' AS `Fine`
+            FROM `" . _DB_PREFIX_ . "product` `p`
+            INNER JOIN `" . _DB_PREFIX_ . "product_lang` `pl` ON `p`.`id_product` = `pl`.`id_product` AND `pl`.`id_lang` = 1
+            INNER JOIN `" . _DB_PREFIX_ . "webfeed_ramo_categoria` `rc` ON `p`.`id_category_default` = `rc`.`id_ramo_categoria`
+            INNER JOIN `" . _DB_PREFIX_ . "stock_available` `st` ON `st`.`id_product` = `p`.`id_product` AND `st`.`quantity` > 0
+            LEFT JOIN `" . _DB_PREFIX_ . "manufacturer` `pm` ON `pm`.`id_manufacturer` = `p`.`id_manufacturer`
+            INNER JOIN `" . _DB_PREFIX_ . "webfeed_product` `wp` ON `wp`.`id_product` = `p`.`id_product`
+            INNER JOIN `" . _DB_PREFIX_ . "webfeed_images` `wi` ON `wp`.`internal_code` = `wi`.`internal_code` AND `wi`.`image_url` IS NOT NULL
+            WHERE `rc`.`ramo` IS NOT NULL
+            AND `p`.`id_category_default` >= 2
         ";
 
-
-        ini_set('memory_limit', '512M');
-
-        $products = $db->executeS($str_query);
-
-        fputcsv($file, array_keys($products[0]), "|");
+        $result = $db->executeS($str_query);
 
 
-        foreach ($products as $p) {
-            fputcsv($file, $p, "|");
+        if ($result) {
+            $headerPrinted = false;
+
+            foreach ($result as $row) {
+                if (!$headerPrinted) {
+                    fputcsv($file, array_keys($row), "|");
+                    $headerPrinted = true;
+                }
+                fputcsv($file, $row, "|");
+            }
         }
 
         fclose($file);
-
-        ini_set('memory_limit', '256M');
-
-
 
         echo "<a href='/datafeed/trovaprezzi.txt' download>Scarica feed</a>";
     }
