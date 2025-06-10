@@ -60,7 +60,7 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
                 p.id_product AS `Codice commerciante`,
                 pl.name AS `Nome prodotto`,
                 COALESCE(pl.description, pl.description_short) AS `Descrizione`,
-                CONCAT('https://','" . Tools::getShopDomain() . "',  p.id_product, '-', pl.link_rewrite, '.html?utm_source=trovaprezzi') AS `URL_Prodotto`,
+                CONCAT('https://','" . Tools::getShopDomain() . "','/',  p.id_product, '-', pl.link_rewrite, '.html?utm_source=trovaprezzi') AS `URL_Prodotto`,
                 wi.image_url AS `URL_Immagine`,
                 TRUNCATE(ROUND(p.price * 1.22, 2), 2) AS `Prezzo Vendita`,
                 0 AS `Spese di Spedizione`,
