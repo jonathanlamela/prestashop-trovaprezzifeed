@@ -60,7 +60,7 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
                 p.id_product AS `Codice commerciante`,
                 pl.name AS `Nome prodotto`,
                 COALESCE(pl.description, pl.description_short) AS `Descrizione`,
-                CONCAT('https://www.ldc.it/', p.id_product, '-', pl.link_rewrite, '.html?utm_source=trovaprezzi') AS `URL_Prodotto`,
+                CONCAT('https://','" . Tools::getShopDomain() . "',  p.id_product, '-', pl.link_rewrite, '.html?utm_source=trovaprezzi') AS `URL_Prodotto`,
                 wi.image_url AS `URL_Immagine`,
                 TRUNCATE(ROUND(p.price * 1.22, 2), 2) AS `Prezzo Vendita`,
                 0 AS `Spese di Spedizione`,
@@ -96,6 +96,15 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
 
         fclose($file);
 
-        echo "<a href='/datafeed/trovaprezzi.txt' download>Scarica feed</a>";
+        // Controlla se il file è vuoto
+        if (filesize($filePath) === 0) {
+            http_response_code(500);
+            exit('Errore: il file trovaprezzi.txt è vuoto.');
+        }
+
+        $this->ajaxRender(json_encode([
+            "url" => Tools::getHttpHost(true) . __PS_BASE_URI__ . "/datafeed/trovaprezzi.txt?v=" . time(),
+            "filesize" => filesize($filePath)
+        ]));
     }
 }
