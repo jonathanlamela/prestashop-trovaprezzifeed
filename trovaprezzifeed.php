@@ -61,6 +61,22 @@ class TrovaprezziFeed extends Module
 
         if (Tools::isSubmit('submit' . $this->name)) {
 
+            if (Tools::getValue("TROVAPREZZI_FEED_SUPPLIERS") != null) {
+                Configuration::updateValue(
+                    "TROVAPREZZI_FEED_SUPPLIERS",
+                    implode(",", Tools::getValue("TROVAPREZZI_FEED_SUPPLIERS"))
+                );
+            }
+
+            if (Tools::getValue("TROVAPREZZI_FEED_CATEGORIES") != null) {
+                Configuration::updateValue(
+                    "TROVAPREZZI_FEED_CATEGORIES",
+                    implode(",", Tools::getValue("TROVAPREZZI_FEED_CATEGORIES"))
+                );
+            } else {
+                Configuration::updateValue("TROVAPREZZI_FEED_CATEGORIES", "");
+            }
+
 
             $output .= $this->displayConfirmation($this->l('Settings updated'));
         }
@@ -86,6 +102,50 @@ class TrovaprezziFeed extends Module
                     ),
                     'name' => 'URL_CRONOJOB'
                 )
+            ),
+            'submit' => array(
+                'title' => $this->l('Save'),
+            )
+        );
+
+        $supp = Supplier::getSuppliers();
+        $supplies = array();
+        foreach ($supp as $s) {
+            $supplies[] = array("id_option" => $s["id_supplier"], "name" => $s["name"]);
+        }
+
+        $fields_form[1]['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Filters'),
+            ),
+            'input' => array(
+                array(
+                    'type' => 'select',
+                    'label' => $this->l('INCLUDE suppliers'),
+                    'name' => 'TROVAPREZZI_FEED_SUPPLIERS[]',
+                    'multiple' => true,
+                    "options" => array(
+                        "id" => "id_option",
+                        "query" => $supplies,
+                        "name" => "name"
+                    )
+                ),
+                array(
+                    'type' => 'categories',
+                    'label' => $this->l('EXCLUDE categories'),
+                    'name' => 'TROVAPREZZI_FEED_CATEGORIES',
+                    'tree' => [
+                        'selected_categories' => explode(
+                            ",",
+                            Configuration::get('TROVAPREZZI_FEED_CATEGORIES')
+                        ),
+                        'disabled_categories' => null,
+                        'use_search' => false,
+                        'use_checkbox' => true,
+                        'id' => 'id_category_tree',
+                    ],
+                    'required' => false
+                ),
             ),
             'submit' => array(
                 'title' => $this->l('Save'),
@@ -131,6 +191,11 @@ class TrovaprezziFeed extends Module
         $helper->fields_value['URL_CRONOJOB'] = Tools::getHttpHost(true)
             . __PS_BASE_URI__
             . "index.php?fc=module&module=trovaprezzifeed&controller=qlcrono";
+
+        $helper->fields_value['TROVAPREZZI_FEED_SUPPLIERS[]'] = explode(
+            ",",
+            Configuration::get('TROVAPREZZI_FEED_SUPPLIERS')
+        );
 
 
         return $helper->generateForm($fields_form);

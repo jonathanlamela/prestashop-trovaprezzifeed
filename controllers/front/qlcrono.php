@@ -56,6 +56,8 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
             SELECT
                 rc.ramo AS Categoria,
                 pm.name AS Marca,
+                p.id_category_default,
+                ps.id_supplier,
                 p.reference AS `Codice OEM`,
                 p.id_product AS `Codice commerciante`,
                 pl.name AS `Nome prodotto`,
@@ -75,11 +77,29 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
             LEFT JOIN `" . _DB_PREFIX_ . "manufacturer` `pm` ON `pm`.`id_manufacturer` = `p`.`id_manufacturer`
             INNER JOIN `" . _DB_PREFIX_ . "webfeed_product` `wp` ON `wp`.`id_product` = `p`.`id_product`
             INNER JOIN `" . _DB_PREFIX_ . "webfeed_images` `wi` ON `wp`.`internal_code` = `wi`.`internal_code` AND `wi`.`image_url` IS NOT NULL
+            LEFT JOIN `" . _DB_PREFIX_ . "product_supplier` `ps` ON `ps`.`id_product` = `p`.`id_product`
             WHERE `rc`.`ramo` IS NOT NULL
             AND `p`.`id_category_default` >= 2
         ";
 
         $result = $db->executeS($str_query);
+
+        $skipped_by_supplier = 0;
+        $skipped_by_category = 0;
+
+        $suppliers_config = Configuration::get('TROVAPREZZI_FEED_SUPPLIERS');
+        $suppliers = [];
+
+        if ($suppliers_config) {
+            $suppliers = explode(",", $suppliers_config);
+        }
+
+        $categories_config = Configuration::get('TROVAPREZZI_FEED_CATEGORIES');
+        $categories = [];
+
+        if ($categories_config) {
+            $categories = explode(",", $categories_config);
+        }
 
 
         if ($result) {
@@ -90,6 +110,17 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
                     fputcsv($file, array_keys($row), "|");
                     $headerPrinted = true;
                 }
+
+                if (!empty($suppliers) && !in_array($row["id_supplier"], $suppliers)) {
+                    $skipped_by_supplier++;
+                    continue; // Skip products not in suppliers
+                }
+
+                if (!empty($categories) && in_array($row["id_category_default"], $categories)) {
+                    $skipped_by_category++;
+                    continue; // Skip products from excluded suppliers
+                }
+
                 fputcsv($file, $row, "|");
             }
         }
@@ -104,7 +135,9 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
 
         $this->ajaxRender(json_encode([
             "url" => Tools::getHttpHost(true) . __PS_BASE_URI__ . "/datafeed/trovaprezzi.txt?v=" . time(),
-            "filesize" => filesize($filePath)
+            "filesize" => filesize($filePath),
+            "skipped_by_supplier" => $skipped_by_supplier,
+            "skipped_by_category" => $skipped_by_category,
         ]));
     }
 }
