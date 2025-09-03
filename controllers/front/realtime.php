@@ -14,14 +14,14 @@
  */
 
 
-class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
+class TrovaprezziFeedRealtimeModuleFrontController extends ModuleFrontController
 {
 
     public $products = array();
 
     public function init()
     {
-        $this->page_name = 'qlcrono'; // page_name and body id
+        $this->page_name = 'realtime'; // page_name and body id
 
         $this->display_column_left = false;
         $this->display_column_right = false;
@@ -32,11 +32,6 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
     public function initContent()
     {
         parent::initContent();
-
-
-        if (!file_exists(_PS_ROOT_DIR_ . "/datafeed/")) {
-            mkdir(_PS_ROOT_DIR_ . "/datafeed/");
-        }
 
         $this->setTemplate("module:trovaprezzifeed/views/templates/front/qlcrono.tpl");
 
@@ -84,7 +79,7 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
         $db = Db::getInstance();
 
         $str_query = "
-   SELECT
+            SELECT
                 pm.name AS `brand`,
                 p.id_category_default,
                 p.id_supplier,
@@ -96,7 +91,8 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
                 wi.image_url,
                 p.price,
                 p.ean13,
-                st.quantity
+                st.quantity,
+                wp.internal_code
             FROM `" . _DB_PREFIX_ . "product` `p`
             INNER JOIN `" . _DB_PREFIX_ . "product_lang` `pl` ON `p`.`id_product` = `pl`.`id_product` AND `pl`.`id_lang` = 1
             INNER JOIN `" . _DB_PREFIX_ . "stock_available` `st` ON `st`.`id_product` = `p`.`id_product` AND `st`.`quantity` > 0
@@ -108,21 +104,25 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
 
         $result = $db->executeS($str_query);
 
-        $skipped_by_supplier = 0;
-        $skipped_by_category = 0;
-
-        $suppliers_config = Configuration::get('TROVAPREZZI_FEED_SUPPLIERS');
         $suppliers = [];
+        $suppliers_query = $db->executeS("SELECT supplier_id FROM " . _DB_PREFIX_ . "trovaprezzifeed_blacklist_suppliers");
 
-        if ($suppliers_config) {
-            $suppliers = explode(",", $suppliers_config);
+        foreach ($suppliers_query as $supplier) {
+            $suppliers[$supplier['supplier_id']] = $supplier['supplier_id'];
         }
 
-        $categories_config = Configuration::get('TROVAPREZZI_FEED_CATEGORIES');
         $categories = [];
+        $categories_query = $db->executeS("SELECT category_id FROM " . _DB_PREFIX_ . "trovaprezzifeed_blacklist_categories");
 
-        if ($categories_config) {
-            $categories = explode(",", $categories_config);
+        foreach ($categories_query as $category) {
+            $categories[$category['category_id']] = $category['category_id'];
+        }
+
+        $internal_codes = [];
+        $internal_codes_query = $db->executeS("SELECT internal_code FROM " . _DB_PREFIX_ . "trovaprezzifeed_blacklist");
+
+        foreach ($internal_codes_query as $item) {
+            $internal_codes[] = $item["internal_code"];
         }
 
         $rami_query = $db->executeS("SELECT id_ramo_categoria, ramo FROM " . _DB_PREFIX_ . "webfeed_ramo_categoria");
@@ -169,14 +169,16 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
 
             foreach ($result as $row) {
 
-                if (!empty($suppliers) && !in_array($row["id_supplier"], $suppliers)) {
-                    $skipped_by_supplier++;
-                    continue; // Skip products not in suppliers
+                if (in_array($row["internal_code"], $internal_codes)) {
+                    continue;
                 }
 
-                if (!empty($categories) && in_array($row["id_category_default"], $categories)) {
-                    $skipped_by_category++;
-                    continue; // Skip products from excluded suppliers
+                if (in_array($row["id_supplier"], $suppliers)) {
+                    continue;
+                }
+
+                if (in_array($row["id_category_default"], $categories)) {
+                    continue;
                 }
 
                 if (isset($rami[$row["id_category_default"]])) {
@@ -203,15 +205,13 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
                     $row["description_short"],
                     $link,
                     $row["image_url"],
-                    round($row["price"]* 1.22, 2),
+                    round($row["price"] * 1.22, 2),
                     0, // Spese di spedizione
                     $row["ean13"],
                     "EUR", // Valuta
                     $row["quantity"],
                     "<endrecord>"
                 ], "|");
-
-
             }
         }
 
@@ -225,12 +225,9 @@ class TrovaprezziFeedQlcronoModuleFrontController extends ModuleFrontController
 
         ini_set('max_execution_time', '60');
 
-
-        $this->ajaxRender(json_encode([
-            "url" => Tools::getHttpHost(true) . __PS_BASE_URI__ . "/datafeed/trovaprezzi.txt?v=" . time(),
-            "filesize" => filesize($filePath),
-            "skipped_by_supplier" => $skipped_by_supplier,
-            "skipped_by_category" => $skipped_by_category,
-        ]));
+        header('Content-Type: text/plain');
+        header('Content-Disposition: attachment; filename="trovaprezzi.txt"');
+        readfile($filePath);
+        exit;
     }
 }

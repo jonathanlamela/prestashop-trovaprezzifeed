@@ -36,6 +36,34 @@ class TrovaprezziFeed extends Module
 
         Configuration::updateValue('TROVAPREZZI_FEED', 'Trovaprezzi feed');
 
+        $db = Db::getInstance();
+
+        $db->execute('
+            CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'trovaprezzifeed_blacklist` (
+                `id_trovaprezzifeed_blacklist` INT(11) NOT NULL AUTO_INCREMENT,
+                `internal_code` VARCHAR(100) NOT NULL,
+                PRIMARY KEY (`id_trovaprezzifeed_blacklist`)
+            )
+        ');
+
+        $db->execute('
+            CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'trovaprezzifeed_blacklist_categories` (
+                `id_trovaprezzifeed_blacklist_categories` INT(11) NOT NULL AUTO_INCREMENT,
+                `category_id` INT(11) NOT NULL,
+                PRIMARY KEY (`id_trovaprezzifeed_blacklist_categories`)
+            )
+        ');
+
+        $db->execute('
+            CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'trovaprezzifeed_blacklist_suppliers` (
+                `id_trovaprezzifeed_blacklist_suppliers` INT(11) NOT NULL AUTO_INCREMENT,
+                `supplier_id` INT(11) NOT NULL,
+                PRIMARY KEY (`id_trovaprezzifeed_blacklist_suppliers`)
+            )
+        ');
+
+        $this->addTabs();
+
         return true;
     }
 
@@ -51,6 +79,9 @@ class TrovaprezziFeed extends Module
 
         $db = Db::getInstance();
 
+        $db->execute("DELETE FROM " . _DB_PREFIX_ . "tab WHERE module='trovaprezzifeed'");
+
+
         return true;
     }
 
@@ -61,21 +92,7 @@ class TrovaprezziFeed extends Module
 
         if (Tools::isSubmit('submit' . $this->name)) {
 
-            if (Tools::getValue("TROVAPREZZI_FEED_SUPPLIERS") != null) {
-                Configuration::updateValue(
-                    "TROVAPREZZI_FEED_SUPPLIERS",
-                    implode(",", Tools::getValue("TROVAPREZZI_FEED_SUPPLIERS"))
-                );
-            }
 
-            if (Tools::getValue("TROVAPREZZI_FEED_CATEGORIES") != null) {
-                Configuration::updateValue(
-                    "TROVAPREZZI_FEED_CATEGORIES",
-                    implode(",", Tools::getValue("TROVAPREZZI_FEED_CATEGORIES"))
-                );
-            } else {
-                Configuration::updateValue("TROVAPREZZI_FEED_CATEGORIES", "");
-            }
 
 
             $output .= $this->displayConfirmation($this->l('Settings updated'));
@@ -107,51 +124,6 @@ class TrovaprezziFeed extends Module
                 'title' => $this->l('Save'),
             )
         );
-
-        $supp = Supplier::getSuppliers();
-        $supplies = array();
-        foreach ($supp as $s) {
-            $supplies[] = array("id_option" => $s["id_supplier"], "name" => $s["name"]);
-        }
-
-        $fields_form[1]['form'] = array(
-            'legend' => array(
-                'title' => $this->l('Filters'),
-            ),
-            'input' => array(
-                array(
-                    'type' => 'select',
-                    'label' => $this->l('INCLUDE suppliers'),
-                    'name' => 'TROVAPREZZI_FEED_SUPPLIERS[]',
-                    'multiple' => true,
-                    "options" => array(
-                        "id" => "id_option",
-                        "query" => $supplies,
-                        "name" => "name"
-                    )
-                ),
-                array(
-                    'type' => 'categories',
-                    'label' => $this->l('EXCLUDE categories'),
-                    'name' => 'TROVAPREZZI_FEED_CATEGORIES',
-                    'tree' => [
-                        'selected_categories' => explode(
-                            ",",
-                            Configuration::get('TROVAPREZZI_FEED_CATEGORIES')
-                        ),
-                        'disabled_categories' => null,
-                        'use_search' => false,
-                        'use_checkbox' => true,
-                        'id' => 'id_category_tree',
-                    ],
-                    'required' => false
-                ),
-            ),
-            'submit' => array(
-                'title' => $this->l('Save'),
-            )
-        );
-
 
 
 
@@ -190,14 +162,50 @@ class TrovaprezziFeed extends Module
         $helper->fields_value['MYMODULE_NAME'] = Configuration::get('MYMODULE_NAME');
         $helper->fields_value['URL_CRONOJOB'] = Tools::getHttpHost(true)
             . __PS_BASE_URI__
-            . "index.php?fc=module&module=trovaprezzifeed&controller=qlcrono";
+            . "index.php?fc=module&module=trovaprezzifeed&controller=realtime";
 
-        $helper->fields_value['TROVAPREZZI_FEED_SUPPLIERS[]'] = explode(
-            ",",
-            Configuration::get('TROVAPREZZI_FEED_SUPPLIERS')
-        );
+
 
 
         return $helper->generateForm($fields_form);
+    }
+
+    public function addTabs()
+    {
+
+        //Main Tab
+        $tabMain = new TabCore();
+        $tabMain->class_name = "TrovaprezziFeed";
+        $tabMain->id_parent = 0;
+        $tabMain->module = $this->name;
+        $tabMain->name[(int) (Configuration::get('PS_LANG_DEFAULT'))] = "Trovaprezzi";
+        $tabMain->save();
+
+        //Main Tab
+        $tabBlackListInternalCodesTab = new TabCore();
+        $tabBlackListInternalCodesTab->class_name = "TrovaprezziFeedBlacklist";
+        $tabBlackListInternalCodesTab->id_parent = $tabMain->id;
+        $tabBlackListInternalCodesTab->module = $this->name;
+        $tabBlackListInternalCodesTab->name[(int) (Configuration::get('PS_LANG_DEFAULT'))] = $this->l('Blacklist internal code');
+        $tabBlackListInternalCodesTab->save();
+
+        //Main Tab
+        $tabBlackListCategoriesTab = new TabCore();
+        $tabBlackListCategoriesTab->class_name = "TrovaprezziFeedBlacklistCategory";
+        $tabBlackListCategoriesTab->id_parent = $tabMain->id;
+        $tabBlackListCategoriesTab->module = $this->name;
+        $tabBlackListCategoriesTab->name[(int) (Configuration::get('PS_LANG_DEFAULT'))] = $this->l('Blacklist categorie');
+        $tabBlackListCategoriesTab->save();
+
+        $tabBlackListSuppliersTab = new TabCore();
+        $tabBlackListSuppliersTab->class_name = "TrovaprezziFeedBlacklistSupplier";
+        $tabBlackListSuppliersTab->id_parent = $tabMain->id;
+        $tabBlackListSuppliersTab->module = $this->name;
+        $tabBlackListSuppliersTab->name[(int) (Configuration::get('PS_LANG_DEFAULT'))] = $this->l('Blacklist fornitori');
+        $tabBlackListSuppliersTab->save();
+
+
+
+        return true;
     }
 }
