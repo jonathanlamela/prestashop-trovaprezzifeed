@@ -71,7 +71,7 @@ class TrovaprezziFeed extends Module
         $tabBlackListProdotti = new TabCore();
         $tabBlackListProdotti->active = true;
         $tabBlackListProdotti->enabled = true;
-        $tabBlackListProdotti->class_name = "TrovaprezziFeedBlacklistProduct";
+        $tabBlackListProdotti->class_name = "ProductBlacklist";
         $tabBlackListProdotti->route_name = "trovaprezzifeed_product_blacklist_index";
         $tabBlackListProdotti->module =  $this->name;
         $tabBlackListProdotti->name[(int) (Configuration::get('PS_LANG_DEFAULT'))] = "Blacklist prodotti";
@@ -81,7 +81,7 @@ class TrovaprezziFeed extends Module
         $tabBlackListCategorie = new TabCore();
         $tabBlackListCategorie->active = true;
         $tabBlackListCategorie->enabled = true;
-        $tabBlackListCategorie->class_name = "TrovaprezziFeedBlacklistCategory";
+        $tabBlackListCategorie->class_name = "CategoryBlacklist";
         $tabBlackListCategorie->route_name = "trovaprezzifeed_category_blacklist_index";
         $tabBlackListCategorie->module =  $this->name;
         $tabBlackListCategorie->name[(int) (Configuration::get('PS_LANG_DEFAULT'))] = "Blacklist categorie";
@@ -91,7 +91,7 @@ class TrovaprezziFeed extends Module
         $tabBlackListFornitori = new TabCore();
         $tabBlackListFornitori->active = true;
         $tabBlackListFornitori->enabled = true;
-        $tabBlackListFornitori->class_name = "TrovaprezziFeedBlacklistSupplier";
+        $tabBlackListFornitori->class_name = "SupplierBlacklist";
         $tabBlackListFornitori->route_name = "trovaprezzifeed_supplier_blacklist_index";
         $tabBlackListFornitori->module =  $this->name;
         $tabBlackListFornitori->name[(int) (Configuration::get('PS_LANG_DEFAULT'))] = "Blacklist fornitori";
