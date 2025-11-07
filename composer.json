@@ -1,0 +1,11 @@
+{
+    "name": "trovaprezzifeed/module",
+    "description": "Modulo Trovaprezzi per PrestaShop 9",
+    "type": "prestashop-module",
+    "autoload": {
+        "psr-4": {
+            "TrovaprezziFeed\\": "src/"
+        }
+    },
+    "require": {}
+}

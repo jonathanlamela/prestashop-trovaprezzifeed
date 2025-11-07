@@ -1,43 +1,14 @@
 <?php
 
-/**
- * 2014-2016 MyQuickList
- *
- * NOTICE OF LICENSE
- *
- * E' vietata la riproduzione parziale e non del modulo ,
- * la vendita e la distribuzione non autorizzata dalla MyQuickList.
- *
- *  @author    Jonathan La Mela <jonathan.la.mela@gmail.com>
- *  @copyright 2007-2016 MyQuickList
- *  @license   http://www.creativecommons.it/ Creative Commons
- */
-
+use TrovaprezziFeed\Constants;
 
 class TrovaprezziFeedRealtimeModuleFrontController extends ModuleFrontController
 {
+    public $auth = false;
+    public $ajax = true;
 
-    public $products = array();
-
-    public function init()
-    {
-        $this->page_name = 'realtime'; // page_name and body id
-
-        $this->display_column_left = false;
-        $this->display_column_right = false;
-
-        parent::init();
-    }
-
-    public function initContent()
-    {
-        parent::initContent();
-
-        $this->setTemplate("module:trovaprezzifeed/views/templates/front/qlcrono.tpl");
-
-
-        $this->writeFeed();
-    }
+    public $display_header = false;
+    public $display_footer = false;
 
     public function getRamoCategoria($id_category)
     {
@@ -68,10 +39,21 @@ class TrovaprezziFeedRealtimeModuleFrontController extends ModuleFrontController
         return $image_url;
     }
 
+    public function initContent(): void
+    {
+        parent::initContent();
+
+        // Disabilita il template
+        $this->setTemplate("module:trovaprezzifeed/views/templates/front/index.html.twig");
+
+        $this->writeFeed();
+    }
+
     public function writeFeed()
     {
 
         ini_set('max_execution_time', '600');
+        ini_set('memory_limit', '1G');
 
         $filePath = _PS_ROOT_DIR_ . "/datafeed/trovaprezzi.txt";
         $file = fopen($filePath, "w");
@@ -102,24 +84,27 @@ class TrovaprezziFeedRealtimeModuleFrontController extends ModuleFrontController
             WHERE `p`.`id_category_default` >= 2
         ";
 
+
+
         $result = $db->executeS($str_query);
 
+
         $suppliers = [];
-        $suppliers_query = $db->executeS("SELECT supplier_id FROM " . _DB_PREFIX_ . "trovaprezzifeed_blacklist_suppliers");
+        $suppliers_query = $db->executeS("SELECT id_supplier FROM " . _DB_PREFIX_ . Constants::APP_PREFIX . "supplier_blacklist");
 
         foreach ($suppliers_query as $supplier) {
-            $suppliers[$supplier['supplier_id']] = $supplier['supplier_id'];
+            $suppliers[$supplier['id_supplier']] = $supplier['id_supplier'];
         }
 
         $categories = [];
-        $categories_query = $db->executeS("SELECT category_id FROM " . _DB_PREFIX_ . "trovaprezzifeed_blacklist_categories");
+        $categories_query = $db->executeS("SELECT id_category FROM " . _DB_PREFIX_ . Constants::APP_PREFIX . "category_blacklist");
 
         foreach ($categories_query as $category) {
-            $categories[$category['category_id']] = $category['category_id'];
+            $categories[$category['id_category']] = $category['id_category'];
         }
 
         $internal_codes = [];
-        $internal_codes_query = $db->executeS("SELECT internal_code FROM " . _DB_PREFIX_ . "trovaprezzifeed_blacklist");
+        $internal_codes_query = $db->executeS("SELECT internal_code FROM " . _DB_PREFIX_ . Constants::APP_PREFIX . "product_blacklist");
 
         foreach ($internal_codes_query as $item) {
             $internal_codes[] = $item["internal_code"];
@@ -224,6 +209,8 @@ class TrovaprezziFeedRealtimeModuleFrontController extends ModuleFrontController
         }
 
         ini_set('max_execution_time', '60');
+        ini_set('memory_limit', '256M');
+
 
         header('Content-Type: text/plain');
         header('Content-Disposition: attachment; filename="trovaprezzi.txt"');
