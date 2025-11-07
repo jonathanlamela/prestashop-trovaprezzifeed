@@ -1,0 +1,34 @@
+# supplier_blacklist
+trovaprezzifeed_supplier_blacklist_index:
+  path: /supplier/blacklist
+  methods: [GET]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\SupplierBlacklistController::indexAction'
+    _legacy_controller: TrovaprezziFeedSupplierBlacklist
+    _legacy_link: TrovaprezziFeedSupplierBlacklist
+
+trovaprezzifeed_supplier_blacklist_search:
+  path: /supplier/blacklist
+  methods: [POST]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\SupplierBlacklistController::searchAction'
+    redirectRoute: trovaprezzifeed_supplier_blacklist_index
+    _legacy_controller: TrovaprezziFeedSupplierBlacklist
+    _legacy_link: TrovaprezziFeedSupplierBlacklist
+
+trovaprezzifeed_supplier_blacklist_delete:
+  path: /supplier/blacklist/delete
+  methods: [POST]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\SupplierBlacklistController::deleteAction'
+    _legacy_controller: TrovaprezziFeedSupplierBlacklist
+    _legacy_link: TrovaprezziFeedSupplierBlacklist
+
+trovaprezzifeed_supplier_blacklist_create:
+  path: /supplier/blacklist/create
+  methods: [GET, POST]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\SupplierBlacklistController::createAction'
+    _legacy_controller: TrovaprezziFeedSupplierBlacklist
+    _legacy_link: TrovaprezziFeedSupplierBlacklist
+

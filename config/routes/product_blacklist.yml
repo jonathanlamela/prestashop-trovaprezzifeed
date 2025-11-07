@@ -1,0 +1,35 @@
+
+
+# product_blacklist
+trovaprezzifeed_product_blacklist_index:
+  path: /product/blacklist
+  methods: [GET]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\ProductBlacklistController::indexAction'
+    _legacy_controller: TrovaprezziFeedProductBlacklist
+    _legacy_link: TrovaprezziFeedProductBlacklist
+
+trovaprezzifeed_product_blacklist_search:
+  path: /product/blacklist
+  methods: [POST]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\ProductBlacklistController::searchAction'
+    redirectRoute: trovaprezzifeed_product_blacklist_index
+    _legacy_controller: TrovaprezziFeedProductBlacklist
+    _legacy_link: TrovaprezziFeedProductBlacklist
+
+trovaprezzifeed_product_blacklist_delete:
+  path: /product/blacklist/delete
+  methods: [POST]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\ProductBlacklistController::deleteAction'
+    _legacy_controller: TrovaprezziFeedProductBlacklist
+    _legacy_link: TrovaprezziFeedProductBlacklist
+
+trovaprezzifeed_product_blacklist_create:
+  path: /product/blacklist/create
+  methods: [GET, POST]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\ProductBlacklistController::createAction'
+    _legacy_controller: TrovaprezziFeedProductBlacklist
+    _legacy_link: TrovaprezziFeedProductBlacklist

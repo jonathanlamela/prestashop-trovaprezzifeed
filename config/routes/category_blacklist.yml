@@ -1,0 +1,33 @@
+# category_blacklist
+trovaprezzifeed_category_blacklist_index:
+  path: /category-blacklist
+  methods: [GET]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\CategoryBlacklistController::indexAction'
+    _legacy_controller: TrovaprezziFeedCategoryBlacklist
+    _legacy_link: TrovaprezziFeedCategoryBlacklist
+
+trovaprezzifeed_category_blacklist_search:
+  path: /category-blacklist
+  methods: [POST]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\CategoryBlacklistController::searchAction'
+    redirectRoute: trovaprezzifeed_category_blacklist_index
+    _legacy_controller: TrovaprezziFeedCategoryBlacklist
+    _legacy_link: TrovaprezziFeedCategoryBlacklist
+
+trovaprezzifeed_category_blacklist_delete:
+  path: /category-blacklist/delete
+  methods: [POST]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\CategoryBlacklistController::deleteAction'
+    _legacy_controller: TrovaprezziFeedCategoryBlacklist
+    _legacy_link: TrovaprezziFeedCategoryBlacklist
+
+trovaprezzifeed_category_blacklist_create:
+  path: /trovaprezzifeed/category-blacklist/create
+  methods: [GET, POST]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\CategoryBlacklistController::createAction'
+    _legacy_controller: TrovaprezziFeedCategoryBlacklist
+    _legacy_link: TrovaprezziFeedCategoryBlacklist

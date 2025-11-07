@@ -18,7 +18,7 @@ use TrovaprezziFeed\Controller\SupplierBlacklistController;
 
 final class SupplierBlacklistGridDefinitionFactory extends AbstractFilterableGridDefinitionFactory
 {
-    public const GRID_ID = Constants::APP_PREFIX . "category_blacklist";
+    public const GRID_ID = Constants::APP_PREFIX . "supplier_blacklist";
 
     protected function getId(): string
     {
@@ -39,6 +39,15 @@ final class SupplierBlacklistGridDefinitionFactory extends AbstractFilterableGri
                 ->setName($this->trans('ID', [], Constants::TRANSLATION_DOMAIN))
                 ->setOptions([
                     'field' => 'id',
+                    'sortable' => true,
+                ])
+        );
+
+        $columns->add(
+            (new DataColumn('id_supplier'))
+                ->setName($this->trans('ID Supplier', [], Constants::TRANSLATION_DOMAIN))
+                ->setOptions([
+                    'field' => 'id_supplier',
                     'sortable' => true,
                 ])
         );
@@ -93,6 +102,12 @@ final class SupplierBlacklistGridDefinitionFactory extends AbstractFilterableGri
 
             ->add((new Filter('id', TextType::class))
                     ->setAssociatedColumn('id')
+                    ->setTypeOptions([
+                        'required' => false
+                    ])
+            )
+            ->add((new Filter('id_supplier', TextType::class))
+                    ->setAssociatedColumn('id_supplier')
                     ->setTypeOptions([
                         'required' => false
                     ])

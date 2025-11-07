@@ -45,6 +45,15 @@ final class CategoryBlacklistGridDefinitionFactory extends AbstractFilterableGri
         );
 
         $columns->add(
+            (new DataColumn('id_category'))
+                ->setName($this->trans('ID Categoria', [], Constants::TRANSLATION_DOMAIN))
+                ->setOptions([
+                    'field' => 'id_category',
+                    'sortable' => true,
+                ])
+        );
+
+        $columns->add(
             (new DataColumn('name'))
                 ->setName($this->trans('Nome categoria', [], Constants::TRANSLATION_DOMAIN))
                 ->setOptions([
@@ -94,6 +103,12 @@ final class CategoryBlacklistGridDefinitionFactory extends AbstractFilterableGri
 
             ->add((new Filter('id', TextType::class))
                     ->setAssociatedColumn('id')
+                    ->setTypeOptions([
+                        'required' => false
+                    ])
+            )
+            ->add((new Filter('id_category', TextType::class))
+                    ->setAssociatedColumn('id_category')
                     ->setTypeOptions([
                         'required' => false
                     ])

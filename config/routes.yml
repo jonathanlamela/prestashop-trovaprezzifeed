@@ -1,109 +1,18 @@
-trovaprezzifeed_settings_index:
-  path: /trovaprezzi_feed/settings
-  methods: [GET, POST]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\ConfigurationController::index'
+parameters:
+  path: trovaprezzifeed
 
-# category_blacklist
-trovaprezzifeed_category_blacklist_index:
-  path: /trovaprezzifeed/category-blacklist
-  methods: [GET]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\CategoryBlacklistController::indexAction'
-    _legacy_controller: CategoryBlacklist
-    _legacy_link: CategoryBlacklist
+trovaprezzifeed_settings:
+  resource: 'routes/settings.yml'
+  prefix: /trovaprezzifeed
 
-trovaprezzifeed_category_blacklist_search:
-  path: /trovaprezzifeed/category-blacklist
-  methods: [POST]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\CategoryBlacklistController::searchAction'
-    redirectRoute: trovaprezzifeed_category_blacklist_index
-    _legacy_controller: CategoryBlacklist
-    _legacy_link: CategoryBlacklist
+trovaprezzifeed_category_blacklist:
+  resource: 'routes/category_blacklist.yml'
+  prefix: /trovaprezzifeed
 
-trovaprezzifeed_category_blacklist_delete:
-  path: /trovaprezzifeed/category-blacklist/delete
-  methods: [POST]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\CategoryBlacklistController::deleteAction'
-    _legacy_controller: CategoryBlacklist
-    _legacy_link: CategoryBlacklist
+trovaprezzifeed_product_blacklist:
+  resource: 'routes/product_blacklist.yml'
+  prefix: /trovaprezzifeed
 
-trovaprezzifeed_category_blacklist_create:
-  path: /trovaprezzifeed/category-blacklist/create
-  methods: [GET, POST]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\CategoryBlacklistController::createAction'
-    _legacy_controller: CategoryBlacklist
-    _legacy_link: CategoryBlacklist
-
-# product_blacklist
-trovaprezzifeed_product_blacklist_index:
-  path: /trovaprezzifeed/product-blacklist
-  methods: [GET]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\ProductBlacklistController::indexAction'
-    _legacy_controller: ProductBlacklist
-    _legacy_link: ProductBlacklist
-
-trovaprezzifeed_product_blacklist_search:
-  path: /trovaprezzifeed/product-blacklist
-  methods: [POST]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\ProductBlacklistController::searchAction'
-    redirectRoute: trovaprezzifeed_product_blacklist_index
-    _legacy_controller: ProductBlacklist
-    _legacy_link: ProductBlacklist
-
-trovaprezzifeed_product_blacklist_delete:
-  path: /trovaprezzifeed/product-blacklist/delete
-  methods: [POST]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\ProductBlacklistController::deleteAction'
-    _legacy_controller: ProductBlacklist
-    _legacy_link: ProductBlacklist
-
-trovaprezzifeed_product_blacklist_create:
-  path: /trovaprezzifeed/product-blacklist/create
-  methods: [GET, POST]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\ProductBlacklistController::createAction'
-    _legacy_controller: ProductBlacklist
-    _legacy_link: ProductBlacklist
-
-# supplier_blacklist
-trovaprezzifeed_supplier_blacklist_index:
-  path: /trovaprezzifeed/supplier-blacklist
-  methods: [GET]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\SupplierBlacklistController::indexAction'
-    _legacy_controller: SupplierBlacklist
-    _legacy_link: SupplierBlacklist
-
-trovaprezzifeed_supplier_blacklist_search:
-  path: /trovaprezzifeed/supplier-blacklist
-  methods: [POST]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\SupplierBlacklistController::searchAction'
-    redirectRoute: trovaprezzifeed_supplier_blacklist_index
-    _legacy_controller: SupplierBlacklist
-    _legacy_link: SupplierBlacklist
-
-trovaprezzifeed_supplier_blacklist_delete:
-  path: /trovaprezzifeed/supplier-blacklist/delete
-  methods: [POST]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\SupplierBlacklistController::deleteAction'
-    _legacy_controller: SupplierBlacklist
-    _legacy_link: SupplierBlacklist
-
-trovaprezzifeed_supplier_blacklist_create:
-  path: /trovaprezzifeed/supplier-blacklist/create
-  methods: [GET, POST]
-  defaults:
-    _controller: 'TrovaprezziFeed\Controller\SupplierBlacklistController::createAction'
-    _legacy_controller: SupplierBlacklist
-    _legacy_link: SupplierBlacklist
-
-
+trovaprezzifeed_supplier_blacklist:
+  resource: 'routes/supplier_blacklist.yml'
+  prefix: /trovaprezzifeed

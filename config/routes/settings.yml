@@ -1,0 +1,5 @@
+trovaprezzifeed_settings_index:
+  path: /settings
+  methods: [GET, POST]
+  defaults:
+    _controller: 'TrovaprezziFeed\Controller\ConfigurationController::index'
