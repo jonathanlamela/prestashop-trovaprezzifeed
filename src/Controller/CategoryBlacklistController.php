@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use PrestaShopBundle\Security\Attribute\AdminSecurity;
 use PrestaShopBundle\Service\Grid\ResponseBuilder;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use TrovaprezziFeed\Repository\TrovaprezziFeedRepository;
+use TrovaprezziFeed\Repository\FeedRepository;
 use PrestaShop\PrestaShop\Core\Grid\Definition\Factory\GridDefinitionFactoryInterface;
 use TrovaprezziFeed\Grid\DefinitionFactory\CategoryBlacklistGridDefinitionFactory as GridDefinitionFactory;
 use TrovaprezziFeed\Grid\Filters\CategoryBlacklistFilters as Filters;
@@ -22,7 +22,7 @@ use TrovaprezziFeed\Constants;
 
 class CategoryBlacklistController extends PrestaShopAdminController
 {
-    private TrovaprezziFeedRepository $repository;
+    private FeedRepository $repository;
     private ResponseBuilder $responseBuilder;
 
     public const INDEX_ROUTE = 'trovaprezzifeed_category_blacklist_index';
@@ -31,7 +31,7 @@ class CategoryBlacklistController extends PrestaShopAdminController
     public const DOMAIN = "category";
 
     public function __construct(
-        TrovaprezziFeedRepository $repository,
+        FeedRepository $repository,
         ResponseBuilder $responseBuilder
     ) {
         $this->repository = $repository;

@@ -6,7 +6,7 @@ use Db;
 use Configuration;
 use TrovaprezziFeed\Constants;
 
-class TrovaprezziFeedRepository
+class FeedRepository
 {
 
     private $db;

@@ -17,14 +17,14 @@ services:
     public: true
     tags: ['form.type']
     arguments:
-      - '@TrovaprezziFeed\Repository\TrovaprezziFeedRepository'
+      - '@TrovaprezziFeed\Repository\FeedRepository'
 
   trovaprezzifeed.form.type.supplier_blacklist:
     class: 'TrovaprezziFeed\Form\Type\SupplierBlacklistType'
     public: true
     tags: ['form.type']
     arguments:
-      - '@TrovaprezziFeed\Repository\TrovaprezziFeedRepository'
+      - '@TrovaprezziFeed\Repository\FeedRepository'
 
   #Controllers
   TrovaprezziFeed\Controller\ConfigurationController:
@@ -56,7 +56,7 @@ services:
     tags: ['controller.service_arguments']
 
   # Repositories
-  TrovaprezziFeed\Repository\TrovaprezziFeedRepository:
+  TrovaprezziFeed\Repository\FeedRepository:
     public: true
     autowire: true
     autoconfigure: true
