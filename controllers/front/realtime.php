@@ -53,7 +53,7 @@ class TrovaprezziFeedRealtimeModuleFrontController extends ModuleFrontController
     {
 
         ini_set('max_execution_time', '600');
-        ini_set('memory_limit', '1G');
+        ini_set('memory_limit', '2G');
 
         $filePath = _PS_ROOT_DIR_ . "/datafeed/trovaprezzi.txt";
         $file = fopen($filePath, "w");
