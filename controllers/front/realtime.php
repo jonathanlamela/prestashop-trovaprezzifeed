@@ -14,7 +14,7 @@ class TrovaprezziFeedRealtimeModuleFrontController extends ModuleFrontController
     {
         $db = Db::getInstance();
 
-        $query = "SELECT ramo FROM " . _DB_PREFIX_ . "webfeed_ramo_categoria WHERE id_ramo_categoria = " . (int)$id_category;
+        $query = "SELECT ramo FROM " . _DB_PREFIX_ . "webfeed_ramo_categoria WHERE id = " . (int)$id_category;
         $result = $db->getValue($query);
 
         return $result;
@@ -110,11 +110,11 @@ class TrovaprezziFeedRealtimeModuleFrontController extends ModuleFrontController
             $internal_codes[] = $item["internal_code"];
         }
 
-        $rami_query = $db->executeS("SELECT id_ramo_categoria, ramo FROM " . _DB_PREFIX_ . "webfeed_ramo_categoria");
+        $rami_query = $db->executeS("SELECT id, ramo FROM " . _DB_PREFIX_ . "webfeed_ramo_categoria");
         $rami = [];
 
         foreach ($rami_query as $ramo) {
-            $rami[$ramo["id_ramo_categoria"]] = $ramo["ramo"];
+            $rami[$ramo["id"]] = $ramo["ramo"];
         }
 
         //Ottieni i prezzi specifici attivi
