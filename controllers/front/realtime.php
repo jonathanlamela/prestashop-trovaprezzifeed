@@ -10,15 +10,7 @@ class TrovaprezziFeedRealtimeModuleFrontController extends ModuleFrontController
     public $display_header = false;
     public $display_footer = false;
 
-    public function getRamoCategoria($id_category)
-    {
-        $db = Db::getInstance();
 
-        $query = "SELECT ramo FROM " . _DB_PREFIX_ . "webfeed_ramo_categoria WHERE id = " . (int)$id_category;
-        $result = $db->getValue($query);
-
-        return $result;
-    }
 
 
 
