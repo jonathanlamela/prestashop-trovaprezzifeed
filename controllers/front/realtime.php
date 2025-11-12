@@ -20,24 +20,7 @@ class TrovaprezziFeedRealtimeModuleFrontController extends ModuleFrontController
         return $result;
     }
 
-    public function getProductImageFromCDN($id_product)
-    {
-        $db = Db::getInstance();
 
-        $internal_code = $db->getValue("SELECT internal_code FROM " . _DB_PREFIX_ . "webfeed_product WHERE id_product = " . (int)$id_product);
-
-        if (!$internal_code) {
-            return null;
-        }
-
-        $image_url = $db->getValue("SELECT image_url FROM " . _DB_PREFIX_ . "webfeed_images WHERE internal_code = '" . pSQL($internal_code) . "'");
-
-        if (!$image_url) {
-            return null;
-        }
-
-        return $image_url;
-    }
 
     public function initContent(): void
     {
@@ -74,12 +57,11 @@ class TrovaprezziFeedRealtimeModuleFrontController extends ModuleFrontController
                 p.price,
                 p.ean13,
                 st.quantity,
-                wp.internal_code
+                p.db_internal_code as internal_code
             FROM `" . _DB_PREFIX_ . "product` `p`
             INNER JOIN `" . _DB_PREFIX_ . "product_lang` `pl` ON `p`.`id_product` = `pl`.`id_product` AND `pl`.`id_lang` = 1
             INNER JOIN `" . _DB_PREFIX_ . "stock_available` `st` ON `st`.`id_product` = `p`.`id_product` AND `st`.`quantity` > 0
             LEFT JOIN `" . _DB_PREFIX_ . "manufacturer` `pm` ON `pm`.`id_manufacturer` = `p`.`id_manufacturer`
-            INNER JOIN `" . _DB_PREFIX_ . "webfeed_product` `wp` ON `wp`.`id_product` = `p`.`id_product`
             INNER JOIN `" . _DB_PREFIX_ . "webfeed_images` `wi` ON `wp`.`internal_code` = `wi`.`internal_code` AND `wi`.`image_url` IS NOT NULL
             WHERE `p`.`id_category_default` >= 2
         ";
